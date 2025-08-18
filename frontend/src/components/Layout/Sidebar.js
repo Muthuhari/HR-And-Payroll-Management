@@ -157,7 +157,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         {/* Footer */}
         <div className="p-4 border-t border-gray-200">
           <p className="text-xs text-gray-500 text-center">
-            © 2024 HRMS. All rights reserved.
+            © 2025 Workly. All rights reserved.
           </p>
         </div>
       </div>

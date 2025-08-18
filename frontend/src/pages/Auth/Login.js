@@ -100,14 +100,14 @@ const Login = () => {
           </form>
 
           {/* Demo Credentials */}
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+          {/*<div className="mt-8 p-4 bg-gray-50 rounded-lg">
             <h3 className="text-sm font-medium text-gray-900 mb-2">Demo Credentials:</h3>
             <div className="text-xs text-gray-600 space-y-1">
               <p><strong>Admin:</strong> admin@hrms.com / admin123</p>
               <p><strong>HR Manager:</strong> hr@hrms.com / hr123</p>
               <p><strong>Employee:</strong> employee@hrms.com / emp123</p>
             </div>
-          </div>
+          </div>*/}
         </div>
 
         {/* Footer */}
