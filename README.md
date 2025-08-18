@@ -1,6 +1,6 @@
 # Workly 
 
-A comprehensive Workly solution built with the MERN stack (MongoDB, Express.js, React.js, Node.js) featuring modern UI/UX design and complete HR functionality.
+WORKLY is a comprehensive HR solution built with the MERN stack (MongoDB, Express.js, React.js, Node.js), featuring a modern UI/UX design and complete HR functionality.
 
 ## 🚀 Features
 
