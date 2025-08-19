@@ -84,7 +84,7 @@ const Payroll = () => {
                   {user?.role !== 'employee' && <th>Employee</th>}
                   <th>Month/Year</th>
                   <th>Base Salary</th>
-                  <th>Gross Pay ff</th>
+                  <th>Gross Pay</th>
                   <th>Deductions</th>
                   <th>Net Salary</th>
                   <th>Status</th>
