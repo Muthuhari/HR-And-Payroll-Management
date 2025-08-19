@@ -84,7 +84,7 @@ const Payroll = () => {
                   {user?.role !== 'employee' && <th>Employee</th>}
                   <th>Month/Year</th>
                   <th>Base Salary</th>
-                  <th>Gross Pay</th>
+                  <th>Gross Pay ff</th>
                   <th>Deductions</th>
                   <th>Net Salary</th>
                   <th>Status</th>
@@ -94,7 +94,7 @@ const Payroll = () => {
               <tbody>
                 {(user?.role === 'employee' ? myPayslips?.data : allPayrolls?.data)?.map((payroll) => {
                   const grossPay = payroll.baseSalary + 
-                    payroll.allowances.reduce((sum, a) => sum + a.amount, 0) + 
+                    payroll.allowances + 
                     payroll.bonus + 
                     payroll.overtime.amount;
                   

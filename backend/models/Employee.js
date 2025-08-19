@@ -84,10 +84,10 @@ const employeeSchema = new mongoose.Schema({
       enum: ['monthly', 'bi-weekly', 'weekly'],
       default: 'monthly'
     },
-    allowances: [{
-      type: String,
-      amount: Number
-    }],
+    allowances: {
+    type: Number,
+    default: 0
+    },
     deductions: [{
       type: String,
       amount: Number

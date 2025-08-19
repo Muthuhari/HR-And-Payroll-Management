@@ -20,10 +20,10 @@ const payrollSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  allowances: [{
-    name: String,
-    amount: Number
-  }],
+  allowances: {
+    type: Number,
+    default: 0
+  },
   deductions: [{
     name: String,
     amount: Number
@@ -81,10 +81,9 @@ const payrollSchema = new mongoose.Schema({
 payrollSchema.index({ employee: 1, month: 1, year: 1 }, { unique: true });
 
 payrollSchema.pre('save', function(next) {
-  const totalAllowances = this.allowances.reduce((sum, a) => sum + a.amount, 0);
   const totalDeductions = this.deductions.reduce((sum, d) => sum + d.amount, 0);
   
-  this.netSalary = this.baseSalary + totalAllowances + this.bonus + this.overtime.amount - totalDeductions - this.tax;
+  this.netSalary = this.baseSalary + this.allowances + this.bonus + this.overtime.amount - totalDeductions - this.tax;
   
   next();
 });
