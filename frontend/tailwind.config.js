@@ -7,16 +7,17 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+          DEFAULT: "#C061FF",
+          50:  "#F5E8FF",
+          100: "#E9D1FF",
+          200: "#D1A6FF",
+          300: "#BA7BFF",
+          400: "#A350FF",
+          500: "#C061FF",
+          600: "#9A3FCC",
+          700: "#762F99",
+          800: "#521F66",
+          900: "#2E0F33",
         },
         secondary: {
           50: '#f8fafc',
