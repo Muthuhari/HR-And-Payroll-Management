@@ -109,9 +109,9 @@ const Payroll = () => {
                       )}
                       <td>{payroll.month}/{payroll.year}</td>
                       <td>${payroll.baseSalary.toLocaleString()}</td>
-                      <td>${grossPay.toLocaleString()}</td>
+                      <td>${grossPay.toFixed(2).toLocaleString()}</td>
                       <td>${totalDeductions.toLocaleString()}</td>
-                      <td className="font-semibold">${payroll.netSalary.toLocaleString()}</td>
+                      <td className="font-semibold">${Number(payroll.netSalary.toFixed(2)).toLocaleString()}</td>
                       <td>
                         <Badge variant={getStatusColor(payroll.paymentStatus)}>
                           {payroll.paymentStatus}

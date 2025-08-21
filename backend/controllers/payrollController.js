@@ -327,8 +327,8 @@ exports.downloadPayslip = async (req, res) => {
     }
 
     if (payroll.overtime.amount > 0) {
-      doc.text(`Overtime (${payroll.overtime.hours} hrs)`, 60, y);
-      doc.text(`$${payroll.overtime.amount}`, 400, y, { align: 'right' });
+      doc.text(`Overtime (${payroll.overtime.hours.toFixed(2).toLocaleString()} hrs)`, 60, y);
+      doc.text(`$${payroll.overtime.amount.toFixed(2).toLocaleString()}`, 400, y, { align: 'right' });
       y += 20;
     }
 
@@ -354,7 +354,7 @@ exports.downloadPayslip = async (req, res) => {
     y = doc.y + 5;
     doc.fontSize(12);
     doc.text('Take Home Pay', 60, y);
-    doc.text(`$${payroll.netSalary}`, 400, y, { align: 'right' });
+    doc.text(`$${Number(payroll.netSalary.toFixed(2)).toLocaleString()}`, 400, y, { align: 'right' });
 
     doc.moveDown(2);
 
@@ -364,8 +364,8 @@ exports.downloadPayslip = async (req, res) => {
     if (payroll.notes) {
       doc.text(`Notes: ${payroll.notes}`, 50, doc.y + 20);
     }
-
-    doc.text('--- End of Payslip ---', { align: 'center', baseline: 'bottom' });
+    y = doc.y + 10;
+    doc.text('--- End of Payslip ---', 0, 700, { align: 'center' });
 
     doc.end();
   } catch (error) {
