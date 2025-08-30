@@ -6,12 +6,17 @@ import Button from '../../components/UI/Button';
 import Input from '../../components/UI/Input';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
 import Badge from '../../components/UI/Badge';
+import AddEmployeeModal from '../../components/Employees/AddEmployeeModal';
 import { Plus, Search, Filter, Edit, Trash2, Eye } from 'lucide-react';
+import EditEmployeeModal from '../../components/Employees/EditEmployeeModal';
 
 const Employees = () => {
   const [search, setSearch] = useState('');
   const [department, setDepartment] = useState('');
   const [status, setStatus] = useState('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
 
   const { data: employees, isLoading, refetch } = useQuery(
     ['employees', { search, department, status }],
@@ -38,7 +43,11 @@ const Employees = () => {
           <h1 className="text-2xl font-bold text-gray-900">Employees</h1>
           <p className="text-gray-600">Manage your organization's employees</p>
         </div>
-        <Button variant="primary" className="flex items-center">
+        <Button 
+          variant="primary" 
+          className="flex items-center"
+          onClick={() => setIsAddModalOpen(true)}
+        >
           <Plus size={16} className="mr-2" />
           Add Employee
         </Button>
@@ -138,7 +147,13 @@ const Employees = () => {
                           <button className="p-1 hover:bg-gray-100 rounded">
                             <Eye size={16} className="text-gray-600" />
                           </button>
-                          <button className="p-1 hover:bg-gray-100 rounded">
+                          <button
+                            className="p-1 hover:bg-gray-100 rounded"
+                            onClick={() => {
+                              setSelectedEmployeeId(employee._id);
+                              setIsEditModalOpen(true);
+                            }}
+                          >
                             <Edit size={16} className="text-blue-600" />
                           </button>
                           <button className="p-1 hover:bg-gray-100 rounded">
@@ -154,6 +169,17 @@ const Employees = () => {
           )}
         </CardBody>
       </Card>
+
+      <AddEmployeeModal 
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+      />
+
+      <EditEmployeeModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        employeeId={selectedEmployeeId}
+      />
     </div>
   );
 };
