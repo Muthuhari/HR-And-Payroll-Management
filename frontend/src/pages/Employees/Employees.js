@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation } from 'react-query';
 import { employeeAPI } from '../../services/api';
 import { Card, CardHeader, CardBody } from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
@@ -9,6 +9,7 @@ import Badge from '../../components/UI/Badge';
 import AddEmployeeModal from '../../components/Employees/AddEmployeeModal';
 import { Plus, Search, Filter, Edit, Trash2, Eye } from 'lucide-react';
 import EditEmployeeModal from '../../components/Employees/EditEmployeeModal';
+import Swal from 'sweetalert2';
 
 const Employees = () => {
   const [search, setSearch] = useState('');
@@ -26,6 +27,56 @@ const Employees = () => {
     }
   );
 
+   const deleteEmployeeMutation = useMutation(
+    (id) => employeeAPI.delete(id),
+    {
+      onSuccess: () => {
+        refetch();
+      },
+      onError: (error) => {
+        alert(error.response?.data?.error || 'Failed to delete employee');
+      }
+    }
+  );
+  const handleDeleteEmployee = (id) => {
+    Swal.fire({
+  text: "Are you sure you want to delete this?",
+  icon: "warning",
+  buttonsStyling: false,
+  confirmButtonText: "Yes",
+  showCancelButton: true,
+  customClass: {
+    confirmButton: "btn btn-success btn-md mx-2",    // Uses your .btn, .btn-success, .btn-md classes
+    cancelButton: "btn btn-secondary btn-md mx-2"    // Uses your .btn, .btn-secondary, .btn-md classes
+  }
+}).then(result => {
+      if (!result.isConfirmed) return;
+      deleteEmployeeMutation.mutate(id, {
+        onSuccess: () => {
+          Swal.fire({
+            text: "Employee deleted successfully!",
+            icon: "success",
+            buttonsStyling: false,
+            confirmButtonText: "Ok, got it!",
+            customClass: {
+    confirmButton: "btn btn-success btn-md mx-2",    // Uses your .btn, .btn-success, .btn-md classes
+}
+          });
+        },
+        onError: (error) => {
+          Swal.fire({
+            text: error.response?.data?.error || "Failed to delete employee",
+            icon: "error",
+            buttonsStyling: false,
+            confirmButtonText: "Ok, got it!",
+            customClass: {
+              confirmButton: "btn btn-danger"
+            }
+          });
+        }
+      });
+    });
+  };
   const getStatusColor = (status) => {
     switch (status) {
       case 'active': return 'success';
@@ -156,7 +207,11 @@ const Employees = () => {
                           >
                             <Edit size={16} className="text-blue-600" />
                           </button>
-                          <button className="p-1 hover:bg-gray-100 rounded">
+                          <button
+                            className="p-1 hover:bg-gray-100 rounded"
+                            onClick={() => handleDeleteEmployee(employee._id)}
+                            disabled={deleteEmployeeMutation.isLoading}
+                          >
                             <Trash2 size={16} className="text-red-600" />
                           </button>
                         </div>
