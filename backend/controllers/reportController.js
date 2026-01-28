@@ -434,7 +434,6 @@ exports.exportPayrollReport = async (req, res) => {
     ];
 
     payrolls.forEach(payroll => {
-      const totalAllowances = payroll.allowances.reduce((sum, a) => sum + a.amount, 0);
       const totalDeductions = payroll.deductions.reduce((sum, d) => sum + d.amount, 0);
 
       worksheet.addRow({
@@ -443,7 +442,7 @@ exports.exportPayrollReport = async (req, res) => {
         department: payroll.employee?.employmentInfo?.department,
         period: `${payroll.month}/${payroll.year}`,
         baseSalary: payroll.baseSalary,
-        allowances: totalAllowances,
+        allowances: payroll.allowances,
         deductions: totalDeductions,
         bonus: payroll.bonus,
         tax: payroll.tax,

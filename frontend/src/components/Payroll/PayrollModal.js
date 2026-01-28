@@ -9,12 +9,13 @@ import { toast } from 'react-toastify';
 const PayrollModal = ({ isOpen, onClose }) => {
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
-    employeeId: '',
-    month: new Date().getMonth() + 1,
-    year: new Date().getFullYear(),
-    bonus: 0,
-    deductions: []
-  });
+  employeeId: '',
+  month: new Date().getMonth() + 1,
+  year: new Date().getFullYear(),
+  bonus: '',
+  deductions: [],
+  allowances: ''
+});
 
   const { data: employees } = useQuery(
     'employees',
@@ -30,10 +31,11 @@ const PayrollModal = ({ isOpen, onClose }) => {
         onClose();
         setFormData({
           employeeId: '',
-          month: new Date().getMonth() + 1,
-          year: new Date().getFullYear(),
-          bonus: 0,
-          deductions: []
+  month: new Date().getMonth() + 1,
+  year: new Date().getFullYear(),
+  bonus: '',
+  deductions: [],
+  allowances: ''
         });
         queryClient.invalidateQueries('allPayrolls');
       },
@@ -60,7 +62,11 @@ const PayrollModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    generatePayrollMutation.mutate(formData);
+    generatePayrollMutation.mutate({
+  ...formData,
+  bonus: parseFloat(formData.bonus) || 0,
+  allowances: parseFloat(formData.allowances) || 0
+});
   };
 
   const handleBulkGenerate = () => {
@@ -201,15 +207,27 @@ const PayrollModal = ({ isOpen, onClose }) => {
             </div>
 
             <Input
-              label="Bonus Amount ($)"
-              type="number"
-              min="0"
-              step="0.01"
-              value={formData.bonus}
-              onChange={(e) => setFormData({ ...formData, bonus: parseFloat(e.target.value) || 0 })}
-              placeholder="Enter bonus amount"
-            />
-
+                label="Bonus Amount ($)"
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.bonus}
+                onChange={(e) =>
+                  setFormData({ ...formData, bonus: e.target.value })
+                }
+                placeholder="Enter bonus amount"
+              />
+              <Input
+                label="Allowances ($)"
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.allowances }
+                onChange={(e) =>
+                  setFormData({ ...formData, allowances: e.target.value })
+                }
+                placeholder="Enter allowances amount"
+              />
             <div className="flex justify-end space-x-2 pt-4">
               <Button
                 type="button"

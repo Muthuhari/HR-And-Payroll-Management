@@ -88,11 +88,16 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-              <Building2 size={24} className="text-white" />
+              <img
+              src={require('../../assets/img/logoLogin.png')}
+              alt="Company Logo"
+              className="w-8 h-8 object-contain"
+            />
             </div>
+
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Workly</h1>
-              <p className="text-xs text-gray-500">Management System</p>
+              <h1 className="text-xl font-bold text-primary-600">Workly</h1>
+              <p className="text-xs text-gray-500">HR Management System</p>
             </div>
           </div>
           

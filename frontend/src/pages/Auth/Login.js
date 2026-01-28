@@ -47,7 +47,11 @@ const Login = () => {
         {/* Header */}
         <div className="text-center">
           <div className="mx-auto w-16 h-16 bg-primary-600 rounded-2xl flex items-center justify-center mb-4">
-            <Building2 size={32} className="text-white" />
+            <img
+              src={require('../../assets/img/logoLogin.png')}
+              alt="Company Logo"
+              className="w-14 h-14 object-contain rounded-2xl"
+            />
           </div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
             Welcome to Workly
@@ -83,7 +87,7 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-8 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-10 text-gray-400 hover:text-gray-600"
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>

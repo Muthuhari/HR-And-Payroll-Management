@@ -8,7 +8,7 @@ const path = require('path');
 
 exports.generatePayroll = async (req, res) => {
   try {
-    const { employeeId, month, year, bonus = 0, deductions = [] } = req.body;
+    const { employeeId, month, year, bonus, allowances = 0, deductions = [] } = req.body;
 
     const employee = await Employee.findById(employeeId);
     if (!employee) {
@@ -47,7 +47,7 @@ exports.generatePayroll = async (req, res) => {
       month,
       year,
       baseSalary: employee.compensation.baseSalary,
-      allowances: employee.compensation.allowances || [],
+      allowances,
       deductions: [...(employee.compensation.deductions || []), ...deductions],
       bonus,
       overtime: {
@@ -116,7 +116,7 @@ exports.bulkGeneratePayroll = async (req, res) => {
             month,
             year,
             baseSalary: employee.compensation.baseSalary,
-            allowances: employee.compensation.allowances || [],
+            allowances,
             deductions: employee.compensation.deductions || [],
             workingDays,
             presentDays,
@@ -279,7 +279,7 @@ exports.downloadPayslip = async (req, res) => {
       return res.status(404).json({ error: 'Payslip not found' });
     }
 
-    const doc = new PDFDocument();
+    const doc = new PDFDocument({ margin: 50 });
     const filename = `payslip_${payroll.employee.employeeId}_${payroll.month}_${payroll.year}.pdf`;
     
     res.setHeader('Content-Type', 'application/pdf');
@@ -287,46 +287,86 @@ exports.downloadPayslip = async (req, res) => {
     
     doc.pipe(res);
 
-    doc.fontSize(20).text('PAYSLIP', { align: 'center' });
+    // Header
+    doc.fontSize(18).text('Company Name', { align: 'center' });
+    doc.fontSize(22).text('PAYSLIP', { align: 'center', underline: true });
     doc.moveDown();
-    
+
+    // Employee & Payroll Info (two-column layout)
     doc.fontSize(12);
-    doc.text(`Employee: ${payroll.employee.personalInfo.firstName} ${payroll.employee.personalInfo.lastName}`);
-    doc.text(`Employee ID: ${payroll.employee.employeeId}`);
-    doc.text(`Month/Year: ${payroll.month}/${payroll.year}`);
-    doc.moveDown();
-    
-    doc.text('EARNINGS', { underline: true });
-    doc.text(`Basic Salary: $${payroll.baseSalary}`);
-    
-    if (payroll.allowances.length > 0) {
-      payroll.allowances.forEach(a => {
-        doc.text(`${a.name}: $${a.amount}`);
-      });
+    doc.text(`Employee: ${payroll.employee.personalInfo.firstName} ${payroll.employee.personalInfo.lastName}`, 50, 150);
+    doc.text(`Employee ID: ${payroll.employee.employeeId}`, 50, 170);
+    doc.text(`Working Days: ${payroll.workingDays || '-'}`, 50, 190);
+    doc.text(`Present Days: ${payroll.presentDays || '-'}`, 50, 210);
+
+    doc.text(`Month/Year: ${payroll.month}/${payroll.year}`, 300, 150);
+    doc.text(`Payment Status: ${payroll.paymentStatus}`, 300, 170);
+    doc.text(`Payment Method: ${payroll.paymentMethod}`, 300, 190);
+    if (payroll.paymentDate) {
+      doc.text(`Payment Date: ${payroll.paymentDate.toDateString()}`, 300, 210);
     }
-    
+    doc.moveDown(3);
+
+    // Earnings Section
+    doc.fontSize(14).text('DEDUCTIONS', 50, doc.y, { underline: true })
+    let y = doc.y + 5;
+    doc.fontSize(12);
+    doc.text('Basic Salary', 60, y);
+    doc.text(`$${payroll.baseSalary}`, 400, y, { align: 'right' });
+
+    y += 20;
+    if (payroll.allowances > 0) {
+      doc.text('Allowances', 60, y);
+      doc.text(`$${payroll.allowances}`, 400, y, { align: 'right' });
+      y += 20;
+    }
     if (payroll.bonus > 0) {
-      doc.text(`Bonus: $${payroll.bonus}`);
+      doc.text('Bonus', 60, y);
+      doc.text(`$${payroll.bonus}`, 400, y, { align: 'right' });
+      y += 20;
     }
-    
+
     if (payroll.overtime.amount > 0) {
-      doc.text(`Overtime (${payroll.overtime.hours} hrs): $${payroll.overtime.amount}`);
+      doc.text(`Overtime (${payroll.overtime.hours.toFixed(2).toLocaleString()} hrs)`, 60, y);
+      doc.text(`$${payroll.overtime.amount.toFixed(2).toLocaleString()}`, 400, y, { align: 'right' });
+      y += 20;
     }
-    
-    doc.moveDown();
-    doc.text('DEDUCTIONS', { underline: true });
-    
-    if (payroll.deductions.length > 0) {
-      payroll.deductions.forEach(d => {
-        doc.text(`${d.name}: $${d.amount}`);
-      });
+
+    doc.moveDown(2);
+
+    // Deductions Section
+    doc.fontSize(14).text('DEDUCTIONS', 50, doc.y, { underline: true })
+    y = doc.y + 5;
+    doc.fontSize(12);
+    payroll.deductions.forEach(d => {
+      doc.text(d.name, 60, y);
+      doc.text(`$${d.amount}`, 400, y, { align: 'right' });
+      y += 20;
+    });
+
+    doc.text('Tax', 60, y);
+    doc.text(`$${payroll.tax}`, 400, y, { align: 'right' });
+
+    doc.moveDown(3);
+
+    // Net Salary (highlighted)
+    doc.fontSize(14).text('NET SALARY', 50, doc.y, { underline: true })
+    y = doc.y + 5;
+    doc.fontSize(12);
+    doc.text('Take Home Pay', 60, y);
+    doc.text(`$${Number(payroll.netSalary.toFixed(2)).toLocaleString()}`, 400, y, { align: 'right' });
+
+    doc.moveDown(2);
+
+    // Footer
+    doc.fontSize(12);
+    doc.text(`Approved By: ${payroll.approvedBy?.personalInfo?.firstName || ''} ${payroll.approvedBy?.personalInfo?.lastName || ''}`, 50, doc.y + 40);
+    if (payroll.notes) {
+      doc.text(`Notes: ${payroll.notes}`, 50, doc.y + 20);
     }
-    
-    doc.text(`Tax: $${payroll.tax}`);
-    
-    doc.moveDown();
-    doc.fontSize(14).text(`NET SALARY: $${payroll.netSalary}`, { underline: true });
-    
+    y = doc.y + 10;
+    doc.text('--- End of Payslip ---', 0, 700, { align: 'center' });
+
     doc.end();
   } catch (error) {
     res.status(500).json({ error: error.message });

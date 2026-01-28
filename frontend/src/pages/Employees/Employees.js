@@ -1,17 +1,23 @@
 import React, { useState } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation } from 'react-query';
 import { employeeAPI } from '../../services/api';
 import { Card, CardHeader, CardBody } from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import Input from '../../components/UI/Input';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
 import Badge from '../../components/UI/Badge';
+import AddEmployeeModal from '../../components/Employees/AddEmployeeModal';
 import { Plus, Search, Filter, Edit, Trash2, Eye } from 'lucide-react';
+import EditEmployeeModal from '../../components/Employees/EditEmployeeModal';
+import Swal from 'sweetalert2';
 
 const Employees = () => {
   const [search, setSearch] = useState('');
   const [department, setDepartment] = useState('');
   const [status, setStatus] = useState('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
 
   const { data: employees, isLoading, refetch } = useQuery(
     ['employees', { search, department, status }],
@@ -21,6 +27,56 @@ const Employees = () => {
     }
   );
 
+   const deleteEmployeeMutation = useMutation(
+    (id) => employeeAPI.delete(id),
+    {
+      onSuccess: () => {
+        refetch();
+      },
+      onError: (error) => {
+        alert(error.response?.data?.error || 'Failed to delete employee');
+      }
+    }
+  );
+  const handleDeleteEmployee = (id) => {
+    Swal.fire({
+  text: "Are you sure you want to delete this?",
+  icon: "warning",
+  buttonsStyling: false,
+  confirmButtonText: "Yes",
+  showCancelButton: true,
+  customClass: {
+    confirmButton: "btn btn-success btn-md mx-2",    // Uses your .btn, .btn-success, .btn-md classes
+    cancelButton: "btn btn-secondary btn-md mx-2"    // Uses your .btn, .btn-secondary, .btn-md classes
+  }
+}).then(result => {
+      if (!result.isConfirmed) return;
+      deleteEmployeeMutation.mutate(id, {
+        onSuccess: () => {
+          Swal.fire({
+            text: "Employee deleted successfully!",
+            icon: "success",
+            buttonsStyling: false,
+            confirmButtonText: "Ok, got it!",
+            customClass: {
+    confirmButton: "btn btn-success btn-md mx-2",    // Uses your .btn, .btn-success, .btn-md classes
+}
+          });
+        },
+        onError: (error) => {
+          Swal.fire({
+            text: error.response?.data?.error || "Failed to delete employee",
+            icon: "error",
+            buttonsStyling: false,
+            confirmButtonText: "Ok, got it!",
+            customClass: {
+              confirmButton: "btn btn-danger"
+            }
+          });
+        }
+      });
+    });
+  };
   const getStatusColor = (status) => {
     switch (status) {
       case 'active': return 'success';
@@ -38,7 +94,11 @@ const Employees = () => {
           <h1 className="text-2xl font-bold text-gray-900">Employees</h1>
           <p className="text-gray-600">Manage your organization's employees</p>
         </div>
-        <Button variant="primary" className="flex items-center">
+        <Button 
+          variant="primary" 
+          className="flex items-center"
+          onClick={() => setIsAddModalOpen(true)}
+        >
           <Plus size={16} className="mr-2" />
           Add Employee
         </Button>
@@ -138,10 +198,20 @@ const Employees = () => {
                           <button className="p-1 hover:bg-gray-100 rounded">
                             <Eye size={16} className="text-gray-600" />
                           </button>
-                          <button className="p-1 hover:bg-gray-100 rounded">
+                          <button
+                            className="p-1 hover:bg-gray-100 rounded"
+                            onClick={() => {
+                              setSelectedEmployeeId(employee._id);
+                              setIsEditModalOpen(true);
+                            }}
+                          >
                             <Edit size={16} className="text-blue-600" />
                           </button>
-                          <button className="p-1 hover:bg-gray-100 rounded">
+                          <button
+                            className="p-1 hover:bg-gray-100 rounded"
+                            onClick={() => handleDeleteEmployee(employee._id)}
+                            disabled={deleteEmployeeMutation.isLoading}
+                          >
                             <Trash2 size={16} className="text-red-600" />
                           </button>
                         </div>
@@ -154,6 +224,17 @@ const Employees = () => {
           )}
         </CardBody>
       </Card>
+
+      <AddEmployeeModal 
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+      />
+
+      <EditEmployeeModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        employeeId={selectedEmployeeId}
+      />
     </div>
   );
 };

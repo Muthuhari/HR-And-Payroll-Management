@@ -94,7 +94,7 @@ const Payroll = () => {
               <tbody>
                 {(user?.role === 'employee' ? myPayslips?.data : allPayrolls?.data)?.map((payroll) => {
                   const grossPay = payroll.baseSalary + 
-                    payroll.allowances.reduce((sum, a) => sum + a.amount, 0) + 
+                    payroll.allowances + 
                     payroll.bonus + 
                     payroll.overtime.amount;
                   
@@ -109,9 +109,9 @@ const Payroll = () => {
                       )}
                       <td>{payroll.month}/{payroll.year}</td>
                       <td>${payroll.baseSalary.toLocaleString()}</td>
-                      <td>${grossPay.toLocaleString()}</td>
+                      <td>${grossPay.toFixed(2).toLocaleString()}</td>
                       <td>${totalDeductions.toLocaleString()}</td>
-                      <td className="font-semibold">${payroll.netSalary.toLocaleString()}</td>
+                      <td className="font-semibold">${Number(payroll.netSalary.toFixed(2)).toLocaleString()}</td>
                       <td>
                         <Badge variant={getStatusColor(payroll.paymentStatus)}>
                           {payroll.paymentStatus}
